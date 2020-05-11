@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define NODE_MAX 2000
 
@@ -124,8 +125,8 @@ void save_node(const TreeNode *node, FILE *file) {
 	save_node(node->right, file);
 }
 
-void save_tree(const TreeNode *root) {
-	FILE *file = fopen("tree.txt", "w");
+void save_tree(const TreeNode *root, const char *filename) {
+	FILE *file = fopen(filename, "w");
 	if (root != NULL) {
 		save_node(root, file);
 	}
@@ -142,11 +143,11 @@ TreeNode* load_node(FILE *file) {
 	bool isleft = false, isright = false, isval = false;
 	fscanf(file, "%d,%d,%d", &type, &isleft, &isright);
 	if (type == Intv) {
-		fscanf(file, ",%d>", val.Int);
+		fscanf(file, ",%d>", &val.Int);
 		isval = true;
 	}
 	else if (type == Floatv) {
-		fscanf(file, ",%f>", val.Float);
+		fscanf(file, ",%f>", &val.Float);
 		isval = true;
 	}
 	else if (type == Index || type == Tref || type == Sref) {
@@ -166,6 +167,7 @@ TreeNode* load_node(FILE *file) {
 	}
 	if (isval) {
 		node = new_valnode(type, left, right, val);
+		free(val.String);
 	}
 	else {
 		node = new_node(type, left, right);
@@ -179,4 +181,23 @@ TreeNode* load_tree(const char *filename) {
 	TreeNode *root = load_node(file);
 	fclose(file);
 	return root;
+}
+
+void free_node(TreeNode *node) {
+	if (node->type == Index || node->type == Tref || node->type == Sref) {
+		free(node->val.String);
+	}
+	if (node->left != NULL) {
+		free_node(node->left);
+	}
+	if (node->right != NULL) {
+		free_node(node->right);
+	}
+}
+
+void free_tree(TreeNode *root) {
+	if (root != NULL) {
+		free_node(root);
+	}
+	node_num = 0;
 }
