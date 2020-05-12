@@ -18,8 +18,9 @@ struct TreeNode {
 	TreeNode *left, *right;
 };
 
-TreeNode nodes[NODE_MAX];
 int node_num = 0;
+TreeNode *TreeRoot = NULL;
+TreeNode nodes[NODE_MAX];
 
 // void ValCopy(TreeNodeVal &dest, const TreeNodeVal &src, const TreeNodeType &t) {
 // 	if (t == Intv) {
@@ -200,4 +201,5 @@ void free_tree(TreeNode *root) {
 		free_node(root);
 	}
 	node_num = 0;
+	TreeRoot = NULL;
 }
