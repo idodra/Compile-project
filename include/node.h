@@ -142,7 +142,7 @@ TreeNode* load_node(FILE *file) {
 	TreeNodeVal val;
 	TreeNode *node = NULL, *left = NULL, *right = NULL;
 	bool isleft = false, isright = false, isval = false;
-	fscanf(file, "%d,%d,%d", &type, &isleft, &isright);
+	fscanf(file, "%d,%d,%d", (int *)&type, (int *)&isleft, (int *)&isright);
 	if (type == Intv) {
 		fscanf(file, ",%d>", &val.Int);
 		isval = true;
