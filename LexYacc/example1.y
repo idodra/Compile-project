@@ -42,7 +42,7 @@ Term: Factor {$$ = $1;}
 Factor: Const {$$ = $1;}
 | SRef {$$ = $1;}
 | TRef {$$ = $1;}
-| LRB RHS RRB {$$ = $2;}
+| LRB RHS RRB {$$ = new_node(Par, $2, NULL);}
 ;
 TRef: ID LAB CList RAB LSB AList RSB {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Tref, $3, $6, val); free($1); free(val.String);}
 ;
@@ -64,7 +64,7 @@ T: F {$$ = $1;}
 ;
 F: ID {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Index, NULL, NULL, val); free($1); free(val.String);}
 | INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}
-| LRB IdExpr RRB {$$ = $2;}
+| LRB IdExpr RRB {$$ = new_node(Par, $2, NULL);}
 ;
 Const: INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}
 | FLOATV {TreeNodeVal val; val.Float = $1; $$ = new_valnode(Floatv, NULL, NULL, val);}

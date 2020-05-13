@@ -4,7 +4,7 @@
 
 #define NODE_MAX 2000
 
-enum TreeNodeType {Add, Sub, Mul, Div, Mod, Eq, Com, Tref, Sref, Index, Intv, Floatv};
+enum TreeNodeType {Add, Sub, Mul, Div, Mod, Eq, Com, Par, Tref, Sref, Index, Intv, Floatv};
 
 union TreeNodeVal {
 	int Int;
