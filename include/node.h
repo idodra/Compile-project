@@ -186,7 +186,10 @@ TreeNode* load_tree(const char *filename) {
 
 void free_node(TreeNode *node) {
 	if (node->type == Index || node->type == Tref || node->type == Sref) {
-		free(node->val.String);
+		if (val.String != NULL) {
+			free(node->val.String);
+			val.String = NULL;
+		}
 	}
 	if (node->left != NULL) {
 		free_node(node->left);
