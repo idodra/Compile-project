@@ -2,6 +2,7 @@
 #include "y.tab.c"
 
 void parse_file(const std::string &filename) {
+	printf("parse file \"%s\"\n", filename.c_str());
 	Json json;
 	read_json(filename, json);
 	FILE *file = fopen("json.txt", "w+");

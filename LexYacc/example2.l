@@ -14,11 +14,12 @@ eq [=]
 add [+]
 sub [-]
 mul [*]
-div [/]{1,2}
+fdiv [/]
+idiv [/]{2}
 mod [%]
 id [A-Za-z_][A-Za-z_0-9]*
 intv [1-9][0-9]*
-floatv [0-9]*\.[0-9]+
+floatv [0-9]+\.[0-9]+
 lrb [(]
 rrb [)]
 lab [<]
@@ -33,7 +34,8 @@ sem [;]
 {add} {return ADD;}
 {sub} {return SUB;}
 {mul} {return MUL;}
-{div} {return DIV;}
+{fdiv} {return FDIV;}
+{idiv} {return IDIV;}
 {mod} {return MOD;}
 {id} {yylval.Sval = strdup(yytext); return ID;}
 {intv} {yylval.Ival = atoi(yytext); return INTV;}

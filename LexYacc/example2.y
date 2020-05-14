@@ -16,10 +16,14 @@ extern "C" {
 	struct TreeNode* TNval;
 }
 %start A
+%right EQ
+%left ADD SUB
+%left MUL FDIV IDIV MOD
+%token LRB RRB LAB RAB LSB RSB COM SEM
 %token <Ival> INTV
 %token <Fval> FLOATV
-%token <Sval> EQ ADD SUB MUL DIV MOD ID LRB RRB LAB RAB LSB RSB COM SEM
-%type <TNval> A P S LHS RHS Term Factor TRef SRef CList AList IdExpr T F Const
+%token <Sval> ID
+%type <TNval> P S LHS RHS TRef SRef CList AList IdExpr Const
 
 %%
 A: P {TreeRoot = $1;}
@@ -30,18 +34,15 @@ S: LHS EQ RHS SEM {$$ = new_node(Eq, $1, $3);}
 ;
 LHS: TRef {$$ = $1;}
 ;
-RHS: Term {$$ = $1;}
-| RHS ADD Term {$$ = new_node(Add, $1, $3);}
-| RHS SUB Term {$$ = new_node(Sub, $1, $3);}
-;
-Term: Factor {$$ = $1;}
-| Term MUL Factor {$$ = new_node(Mul, $1, $3);}
-| Term DIV Factor {$$ = new_node(Div, $1, $3);}
-| Term MOD Factor {$$ = new_node(Mod, $1, $3);}
-;
-Factor: Const {$$ = $1;}
+RHS: Const {$$ = $1;}
 | SRef {$$ = $1;}
 | TRef {$$ = $1;}
+| RHS ADD RHS {$$ = new_node(Add, $1, $3);}
+| RHS SUB RHS {$$ = new_node(Sub, $1, $3);}
+| RHS MUL RHS {$$ = new_node(Mul, $1, $3);}
+| RHS FDIV RHS {$$ = new_node(Div, $1, $3);}
+| RHS IDIV RHS {$$ = new_node(Div, $1, $3);}
+| RHS MOD RHS {$$ = new_node(Mod, $1, $3);}
 | LRB RHS RRB {$$ = new_node(Par, $2, NULL);}
 ;
 TRef: ID LAB CList RAB LSB AList RSB {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Tref, $3, $6, val); free($1); free(val.String);}
@@ -54,16 +55,13 @@ CList: INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, v
 AList: IdExpr {$$ = $1;}
 | AList COM IdExpr {$$ = new_node(Com, $1, $3);}
 ;
-IdExpr: T {$$ = $1;}
-| IdExpr ADD T {$$ = new_node(Add, $1, $3);}
-;
-T: F {$$ = $1;}
-| T MUL F {$$ = new_node(Mul, $1, $3);}
-| T DIV F {$$ = new_node(Div, $1, $3);}
-| T MOD F {$$ = new_node(Mod, $1, $3);}
-;
-F: ID {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Index, NULL, NULL, val); free($1); free(val.String);}
-| INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}
+IdExpr: ID {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Index, NULL, NULL, val); free($1); free(val.String);}
+| IdExpr ADD IdExpr {$$ = new_node(Add, $1, $3);}
+| IdExpr SUB IdExpr {$$ = new_node(Sub, $1, $3);}
+| IdExpr ADD INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Add, $1, new_valnode(Intv, NULL, NULL, val));}
+| IdExpr MUL INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Mul, $1, new_valnode(Intv, NULL, NULL, val));}
+| IdExpr IDIV INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Div, $1, new_valnode(Intv, NULL, NULL, val));}
+| IdExpr MOD INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Mod, $1, new_valnode(Intv, NULL, NULL, val));}
 | LRB IdExpr RRB {$$ = new_node(Par, $2, NULL);}
 ;
 Const: INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}

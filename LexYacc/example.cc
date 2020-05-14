@@ -11,9 +11,10 @@ void printTree(TreeNode *node) {
 }
 int main() {
 	//调用parse_file()解析json文件
-	parse_file("case6.json");
+	parse_file("../project1/cases/case10.json");
 	//解析完成后,可以通过根节点TreeRoot(TreeNode*类型)访问树,比如:
 	printTree(TreeRoot);
+	cout << endl;
 	//不需要使用树之后调用free_tree()删除树
 	//原因:1.建树过程调用了malloc,需要free防止内存泄漏
 	//    2.避免后续解析其他json文件出错
