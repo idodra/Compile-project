@@ -186,9 +186,9 @@ TreeNode* load_tree(const char *filename) {
 
 void free_node(TreeNode *node) {
 	if (node->type == Index || node->type == Tref || node->type == Sref) {
-		if (val.String != NULL) {
+		if (node->val.String != NULL) {
 			free(node->val.String);
-			val.String = NULL;
+			node->val.String = NULL;
 		}
 	}
 	if (node->left != NULL) {
