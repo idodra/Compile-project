@@ -22,7 +22,7 @@ void parse_file(const std::string &filename) {
 
 void parse_string(const std::string &s) {
 	printf("parse string \"%s\"\n", s.c_str());
-	FILE *file = fopen("json.txt", "w");
+	FILE *file = fopen("json.txt", "w+");
 	if (file == NULL) {
 		printf("cannot open \"json.txt\"\n");
 		exit(1);
