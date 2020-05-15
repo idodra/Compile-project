@@ -57,31 +57,37 @@ void IRPrinter::visit(Ref<const IntImm> op) {
 
 
 void IRPrinter::visit(Ref<const UIntImm> op) {
-    oss << "(" << op->type() << " " << op->value() << ")";
+    //oss << "(" << op->type() << " " << op->value() << ")";
+    oss << op->value();
 }
 
 
 void IRPrinter::visit(Ref<const FloatImm> op) {
-    oss << "(" << op->type() << " " << op->value() << ")";
+    //oss << "(" << op->type() << " " << op->value() << ")";
+    oss << op->value();
 }
 
 
 void IRPrinter::visit(Ref<const StringImm> op) {
-    oss << "(" << op->type() << " " << op->value() << ")";
+    //oss << "(" << op->type() << " " << op->value() << ")";
+    oss << op->value();
 }
 
 
 void IRPrinter::visit(Ref<const Unary> op) {
+    oss << "("
     if (op->op_type == UnaryOpType::Neg) {
         oss << "-";
     } else if (op->op_type == UnaryOpType::Not) {
         oss << "!";
     }
     (op->a).visit_expr(this);
+    oss << ")"
 }
 
 
 void IRPrinter::visit(Ref<const Binary> op) {
+    oss << "(";
     (op->a).visit_expr(this);
     if (op->op_type == BinaryOpType::Add) {
         oss << " + ";
@@ -99,10 +105,12 @@ void IRPrinter::visit(Ref<const Binary> op) {
         oss << " || ";
     }
     (op->b).visit_expr(this);
+    oss << ")";
 }
 
 
 void IRPrinter::visit(Ref<const Compare> op) {
+    oss << "(";
     (op->a).visit_expr(this);
     if (op->op_type == CompareOpType::LT) {
         oss << " < ";
@@ -118,6 +126,7 @@ void IRPrinter::visit(Ref<const Compare> op) {
         oss << " != ";
     }
     (op->b).visit_expr(this);
+    oss << ")";
 }
 
 
@@ -165,37 +174,43 @@ void IRPrinter::visit(Ref<const Ramp> op) {
 void IRPrinter::visit(Ref<const Var> op) {
     if (print_arg && !print_def) {
         oss << op->type() << " (&" << op->name << ")";
-        oss << "[";
-        for (size_t i = 0; i < op->shape.size(); ++i) {
-            oss << op->shape[i];
-            if (i < op->shape.size() - 1) {
-                oss << "][";
+        if(op->shape.size()){
+            oss << "[";
+            for (size_t i = 0; i < op->shape.size(); ++i) {
+                oss << op->shape[i];
+                if (i < op->shape.size() - 1) {
+                    oss << "][";
+                }
             }
+            oss << "]";
         }
-        oss << "]";
 
     }
     else if(print_def){
         oss << op->type() << " " << op->name ;
         oss << "[";
-        for (size_t i = 0; i < op->shape.size(); ++i) {
-            oss << op->shape[i];
-            if (i < op->shape.size() - 1) {
-                oss << "][";
+        if(op->shape.size()){
+            for (size_t i = 0; i < op->shape.size(); ++i) {
+                oss << op->shape[i];
+                if (i < op->shape.size() - 1) {
+                    oss << "][";
+                }
             }
+            oss << "];";
         }
-        oss << "];";
     }
     else {
         oss << op->name;
         oss << "[";
-        for (size_t i = 0; i < op->args.size(); ++i) {
-            op->args[i].visit_expr(this);
-            if (i < op->args.size() - 1) {
-                oss << "][";
+        if(op->args.size()){
+            for (size_t i = 0; i < op->args.size(); ++i) {
+                op->args[i].visit_expr(this);
+                if (i < op->args.size() - 1) {
+                    oss << "][";
+                }
             }
+            oss << "]";
         }
-        oss << "]";
     }
 }
 
@@ -266,8 +281,7 @@ void IRPrinter::visit(Ref<const Def> op) {
     print_def = true;
     (op->var).visit_expr(this);
     print_def = false;
-    print_indent();
-    oss << "}\n";
+    oss << ";\n";
 }
 
 
@@ -316,7 +330,7 @@ void IRPrinter::visit(Ref<const Move> op) {
     }
     oss << "> ";*/
     (op->src).visit_expr(this);
-    oss << "\n";
+    oss << ";\n";
 }
 
 
@@ -336,10 +350,14 @@ void IRPrinter::visit(Ref<const Kernel> op) {
             oss << ", ";
         }
     }
-    
-    for (size_t i = 0; i < op->outputs.size(); ++i) {
+    if(op ->outputs.size()){
         oss << ", ";
+    }
+    for (size_t i = 0; i < op->outputs.size(); ++i) {
         op->outputs[i].visit_expr(this);
+        if (i < op->outputs.size() - 1) {
+            oss << ", ";
+        }
     }
     
     print_arg = false;
