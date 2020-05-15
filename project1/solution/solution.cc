@@ -403,6 +403,8 @@ void pass(std::string inFile, std::string outFile) {
     //调用parse_file()解析json文件
     parse_file(inFile);
     //记录index和它的取值范围, 张量的shape信息，构造符号表
+    indexDom.clear();
+    varTable.clear();
     buildTable(TreeRoot);
     //遍历, 构造IR树
     std::string code = buildTree(TreeRoot, inFile);
