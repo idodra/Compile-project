@@ -366,6 +366,8 @@ void parseVar() {
 
 std::string buildTree(TreeNode *node, std::string filename) {
     //调用read_json解析json文件, 记录case信息
+    caseInfo.ins.clear();
+    caseInfo.outs.clear();
     read_json(filename, caseInfo);
     if (strcmp(caseInfo.data_type.c_str(), "float") == 0) {
         data_type = Type::float_scalar(32);
