@@ -72,7 +72,6 @@ void Index_Div(TreeNode *node, int begin, int end) {
 // idExpr —— Mod
 void Index_Mod(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
-        int i = node->right->val.Int;
         parse_expr(node->left, MAX_INT, MIN_INT);
         return;
     }
