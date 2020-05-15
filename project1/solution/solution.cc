@@ -322,7 +322,7 @@ void deal_Eq(TreeNode *node) {
     std::vector<Stmt> stmtList;
     // 临时变量tmp记录右侧结果，它的结构与左侧Tref相同，初始化
     Expr tmp = Var::make(data_type, getTemp(), loopindex, varTable[node->left->val.String]);
-    stmtList.push_back(Def::make(tmp));
+    mainStmt.push_back(Def::make(tmp));
     if (data_type == Type::int_scalar(32)) {
         stmtList.push_back(Move::make(tmp, IntImm::make(data_type, 0), MoveType::LocalToMem));
     }

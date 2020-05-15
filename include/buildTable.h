@@ -181,7 +181,7 @@ void buildTable(TreeNode *node) {
         std::vector<size_t> shape;
         for (auto i: sizeList) { sizeQueue.push(i); shape.push_back(i); }
         insert_args(node->right);
-        if (varTable.find(node->val.String) != varTable.end()) {
+        if (varTable.find(node->val.String) == varTable.end()) {
             varTable[node->val.String] = shape;
         }
         return;
@@ -192,7 +192,7 @@ void buildTable(TreeNode *node) {
         insert_size(node->left, sizeList);
         std::vector<size_t> shape;
         for (auto i: sizeList) shape.push_back(i);
-        if (varTable.find(node->val.String) != varTable.end()) {
+        if (varTable.find(node->val.String) == varTable.end()) {
             varTable[node->val.String] = shape;
         }
         return;
