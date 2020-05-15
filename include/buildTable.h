@@ -107,7 +107,8 @@ void parse_expr(TreeNode *node, int begin, int end) {
         case Mul:
             Index_Mul(node, begin, end);
             break;
-        case Div:
+        case Fdiv:
+        case Idiv:
             Index_Div(node, begin, end);
             break;
         case Mod:
@@ -136,7 +137,8 @@ void insert_args(TreeNode *node) {
             Index_Mul(node, 0, sizeQueue.front());
             sizeQueue.pop();
             break;
-        case Div:
+        case Fdiv:
+        case Idiv:
             Index_Div(node, 0, sizeQueue.front());
             sizeQueue.pop();
             break;
