@@ -174,7 +174,7 @@ void IRPrinter::visit(Ref<const Ramp> op) {
 void IRPrinter::visit(Ref<const Var> op) {
     if (print_arg && !print_def) {
         oss << op->type() << " (&" << op->name << ")";
-        if(op->shape.size()){
+        if(op->shape.size() > 1 || op->shape[0] > 1){
             oss << "[";
             for (size_t i = 0; i < op->shape.size(); ++i) {
                 oss << op->shape[i];
@@ -184,12 +184,11 @@ void IRPrinter::visit(Ref<const Var> op) {
             }
             oss << "]";
         }
-
     }
     else if(print_def){
         oss << op->type() << " " << op->name ;
-        oss << "[";
         if(op->shape.size()){
+            oss << "[";
             for (size_t i = 0; i < op->shape.size(); ++i) {
                 oss << op->shape[i];
                 if (i < op->shape.size() - 1) {
@@ -201,8 +200,8 @@ void IRPrinter::visit(Ref<const Var> op) {
     }
     else {
         oss << op->name;
-        oss << "[";
         if(op->args.size()){
+            oss << "[";
             for (size_t i = 0; i < op->args.size(); ++i) {
                 op->args[i].visit_expr(this);
                 if (i < op->args.size() - 1) {
