@@ -75,14 +75,14 @@ void IRPrinter::visit(Ref<const StringImm> op) {
 
 
 void IRPrinter::visit(Ref<const Unary> op) {
-    oss << "("
+    oss << "(";
     if (op->op_type == UnaryOpType::Neg) {
         oss << "-";
     } else if (op->op_type == UnaryOpType::Not) {
         oss << "!";
     }
     (op->a).visit_expr(this);
-    oss << ")"
+    oss << ")";
 }
 
 
@@ -196,7 +196,7 @@ void IRPrinter::visit(Ref<const Var> op) {
                     oss << "][";
                 }
             }
-            oss << "];";
+            oss << "]";
         }
     }
     else {
@@ -350,7 +350,7 @@ void IRPrinter::visit(Ref<const Kernel> op) {
             oss << ", ";
         }
     }
-    if(op ->outputs.size()){
+    if(op->inputs.size() && op->outputs.size()){
         oss << ", ";
     }
     for (size_t i = 0; i < op->outputs.size(); ++i) {
