@@ -40,8 +40,8 @@ RHS: Const {$$ = $1;}
 | RHS ADD RHS {$$ = new_node(Add, $1, $3);}
 | RHS SUB RHS {$$ = new_node(Sub, $1, $3);}
 | RHS MUL RHS {$$ = new_node(Mul, $1, $3);}
-| RHS FDIV RHS {$$ = new_node(Div, $1, $3);}
-| RHS IDIV RHS {$$ = new_node(Div, $1, $3);}
+| RHS FDIV RHS {$$ = new_node(Fdiv, $1, $3);}
+| RHS IDIV RHS {$$ = new_node(Idiv, $1, $3);}
 | RHS MOD RHS {$$ = new_node(Mod, $1, $3);}
 | LRB RHS RRB {$$ = new_node(Par, $2, NULL);}
 ;
@@ -60,7 +60,7 @@ IdExpr: ID {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Index, NU
 | IdExpr SUB IdExpr {$$ = new_node(Sub, $1, $3);}
 | IdExpr ADD INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Add, $1, new_valnode(Intv, NULL, NULL, val));}
 | IdExpr MUL INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Mul, $1, new_valnode(Intv, NULL, NULL, val));}
-| IdExpr IDIV INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Div, $1, new_valnode(Intv, NULL, NULL, val));}
+| IdExpr IDIV INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Idiv, $1, new_valnode(Intv, NULL, NULL, val));}
 | IdExpr MOD INTV {TreeNodeVal val; val.Int = $3; $$ = new_node(Mod, $1, new_valnode(Intv, NULL, NULL, val));}
 | LRB IdExpr RRB {$$ = new_node(Par, $2, NULL);}
 ;
