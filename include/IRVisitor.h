@@ -52,6 +52,8 @@ class IRVisitor {
     virtual void visit(Ref<const IfThenElse>);
     virtual void visit(Ref<const Move>);
     virtual void visit(Ref<const Kernel>);
+
+    virtual void visit(Ref<const Def>);
  private:
 };
 

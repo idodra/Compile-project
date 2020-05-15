@@ -77,11 +77,14 @@ class IRPrinter : public IRVisitor {
     void visit(Ref<const IfThenElse>) override;
     void visit(Ref<const Move>) override;
     void visit(Ref<const Kernel>) override;
+
+    void visit(Ref<const Def>) override;
  private:
     std::ostringstream oss;
     int indent;
     bool print_range;
     bool print_arg;
+    bool print_def;
     std::string temp;
 };
 

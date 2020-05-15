@@ -128,6 +128,11 @@ void IRVisitor::visit(Ref<const LoopNest> op) {
     return;
 }
 
+void IRVisitor::visit(Ref<const Def> op) {
+    (op->var).visit_expr(this);
+    return;
+}
+
 
 void IRVisitor::visit(Ref<const IfThenElse> op) {
     (op->cond).visit_expr(this);

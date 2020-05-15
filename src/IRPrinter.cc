@@ -163,7 +163,7 @@ void IRPrinter::visit(Ref<const Ramp> op) {
 
 
 void IRPrinter::visit(Ref<const Var> op) {
-    if (print_arg) {
+    if (print_arg && !print_def) {
         oss << op->type() << " (&" << op->name << ")";
         oss << "[";
         for (size_t i = 0; i < op->shape.size(); ++i) {
@@ -173,7 +173,19 @@ void IRPrinter::visit(Ref<const Var> op) {
             }
         }
         oss << "]";
-    } 
+
+    }
+    else if(print_def){
+        oss << op->type() << " " << op->name ;
+        oss << "[";
+        for (size_t i = 0; i < op->shape.size(); ++i) {
+            oss << op->shape[i];
+            if (i < op->shape.size() - 1) {
+                oss << "][";
+            }
+        }
+        oss << "];";
+    }
     else {
         oss << op->name;
         oss << "[";
@@ -249,6 +261,16 @@ void IRPrinter::visit(Ref<const LoopNest> op) {
 }
 
 
+void IRPrinter::visit(Ref<const Def> op) {
+    print_indent();
+    print_def = true;
+    (op->var).visit_expr(this);
+    print_def = false;
+    print_indent();
+    oss << "}\n";
+}
+
+
 void IRPrinter::visit(Ref<const IfThenElse> op) {
     print_indent();
     oss << "if (";
@@ -314,10 +336,12 @@ void IRPrinter::visit(Ref<const Kernel> op) {
             oss << ", ";
         }
     }
+    
     for (size_t i = 0; i < op->outputs.size(); ++i) {
         oss << ", ";
         op->outputs[i].visit_expr(this);
     }
+    
     print_arg = false;
     oss << ") {\n";
     enter();
