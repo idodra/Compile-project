@@ -127,7 +127,10 @@ enum class IRNodeType : short {
     UIntImm,
     FloatImm,
     StringImm,
-    Dom
+    Dom,
+
+    //newStmts
+    Def
 };
 
 
@@ -808,6 +811,29 @@ class LoopNest : public StmtNode, public std::enable_shared_from_this<LoopNest> 
     }
 
     static const IRNodeType node_type_ = IRNodeType::LoopNest;
+};
+
+/**
+ * Def
+ * - block: if index_list is empty, it means a block of statements
+ */ 
+class Def : public StmtNode, public std::enable_shared_from_this<Def> {
+ public:
+    Expr var;
+    //std::vector<Expr> index_list;
+    //std::vector<Stmt> body_list;
+
+    Def(Expr _var) :
+        StmtNode(IRNodeType::Def), var(_var) {}
+
+    Stmt mutate_stmt(IRMutator *mutator) const;
+    void visit_node(IRVisitor *visitor) const;
+
+    static Stmt make(Expr _var) {
+        return std::make_shared<const Def>(_var);
+    }
+
+    static const IRNodeType node_type_ = IRNodeType::Def;
 };
 
 

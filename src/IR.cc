@@ -105,6 +105,11 @@ Stmt LoopNest::mutate_stmt(IRMutator *mutator) const {
 }
 
 
+Stmt Def::mutate_stmt(IRMutator *mutator) const {
+    return mutator->visit(Ref<const Def>(shared_from_this()));
+}
+
+
 Stmt IfThenElse::mutate_stmt(IRMutator *mutator) const {
     return mutator->visit(Ref<const IfThenElse>(shared_from_this()));
 }
@@ -195,6 +200,11 @@ void Index::visit_node(IRVisitor *visitor) const {
 
 void LoopNest::visit_node(IRVisitor *visitor) const {
     return visitor->visit(Ref<const LoopNest>(shared_from_this()));
+}
+
+
+void Def::visit_node(IRVisitor *visitor) const {
+    return visitor->visit(Ref<const Def>(shared_from_this()));
 }
 
 

@@ -4,7 +4,7 @@
 
 #define NODE_MAX 2000
 
-enum TreeNodeType {Add, Sub, Mul, Div, Mod, Eq, Com, Tref, Sref, Index, Intv, Floatv};
+enum TreeNodeType {Add, Sub, Mul, Fdiv, Idiv, Mod, Eq, Com, Par, Tref, Sref, Index, Intv, Floatv};
 
 union TreeNodeVal {
 	int Int;
@@ -186,7 +186,10 @@ TreeNode* load_tree(const char *filename) {
 
 void free_node(TreeNode *node) {
 	if (node->type == Index || node->type == Tref || node->type == Sref) {
-		free(node->val.String);
+		if (node->val.String != NULL) {
+			free(node->val.String);
+			node->val.String = NULL;
+		}
 	}
 	if (node->left != NULL) {
 		free_node(node->left);

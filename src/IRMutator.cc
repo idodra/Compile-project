@@ -148,6 +148,12 @@ Stmt IRMutator::visit(Ref<const LoopNest> op) {
 }
 
 
+Stmt IRMutator::visit(Ref<const Def> op) {
+    Expr new_var = mutate(op->var);
+    return Def::make(new_var);
+}
+
+
 Stmt IRMutator::visit(Ref<const IfThenElse> op) {
     Expr new_cond = mutate(op->cond);
     Stmt new_true_case = mutate(op->true_case);

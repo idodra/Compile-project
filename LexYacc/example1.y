@@ -18,7 +18,7 @@ extern "C" {
 %start A
 %token <Ival> INTV
 %token <Fval> FLOATV
-%token <Sval> EQ ADD SUB MUL DIV MOD ID LRB RRB LAB RAB LSB RSB COM SEM
+%token <Sval> EQ ADD SUB MUL FDIV IDIV MOD ID LRB RRB LAB RAB LSB RSB COM SEM
 %type <TNval> A P S LHS RHS Term Factor TRef SRef CList AList IdExpr T F Const
 
 %%
@@ -36,13 +36,14 @@ RHS: Term {$$ = $1;}
 ;
 Term: Factor {$$ = $1;}
 | Term MUL Factor {$$ = new_node(Mul, $1, $3);}
-| Term DIV Factor {$$ = new_node(Div, $1, $3);}
+| Term FDIV Factor {$$ = new_node(Fdiv, $1, $3);}
+| Term IDIV Factor {$$ = new_node(Idiv, $1, $3);}
 | Term MOD Factor {$$ = new_node(Mod, $1, $3);}
 ;
 Factor: Const {$$ = $1;}
 | SRef {$$ = $1;}
 | TRef {$$ = $1;}
-| LRB RHS RRB {$$ = $2;}
+| LRB RHS RRB {$$ = new_node(Par, $2, NULL);}
 ;
 TRef: ID LAB CList RAB LSB AList RSB {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Tref, $3, $6, val); free($1); free(val.String);}
 ;
@@ -59,12 +60,12 @@ IdExpr: T {$$ = $1;}
 ;
 T: F {$$ = $1;}
 | T MUL F {$$ = new_node(Mul, $1, $3);}
-| T DIV F {$$ = new_node(Div, $1, $3);}
+| T IDIV F {$$ = new_node(Idiv, $1, $3);}
 | T MOD F {$$ = new_node(Mod, $1, $3);}
 ;
 F: ID {TreeNodeVal val; val.String = strdup($1); $$ = new_valnode(Index, NULL, NULL, val); free($1); free(val.String);}
 | INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}
-| LRB IdExpr RRB {$$ = $2;}
+| LRB IdExpr RRB {$$ = new_node(Par, $2, NULL);}
 ;
 Const: INTV {TreeNodeVal val; val.Int = $1; $$ = new_valnode(Intv, NULL, NULL, val);}
 | FLOATV {TreeNodeVal val; val.Float = $1; $$ = new_valnode(Floatv, NULL, NULL, val);}
