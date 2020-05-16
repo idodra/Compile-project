@@ -48,7 +48,6 @@ Expr deal_expr(TreeNode *node, Type type, std::vector<std::string>& indexList);
 
 // Binary —— Add/Sub/Mul/Div/Mod
 Expr deal_Binary(TreeNode *node, Type type, std::vector<std::string>& indexList) {
-    //std::cout << "deal Binary begin!" << std::endl;
 
     Expr a = deal_expr(node->left, type, indexList);
     Expr b = deal_expr(node->right, type, indexList);
@@ -73,19 +72,16 @@ Expr deal_Binary(TreeNode *node, Type type, std::vector<std::string>& indexList)
             break;
     }
 
-    //std::cout << "deal Binary end!" << std::endl;
     return Binary::make(type, opType, a, b);
 }
 
 // Var —— Sref
 Expr deal_Sref(TreeNode *node, Type type) {
-    //std::cout << "deal Sref" << std::endl;
     return Var::make(type, node->val.String, {}, varTable[node->val.String]);;
 }
 
 // Index
 Expr deal_Index(TreeNode *node, Type type, std::vector<std::string>& indexList) {
-    //std::cout << "deal Index begin!" << std::endl;
 
     if (!inVector(indexList, node->val.String)) {
         indexList.push_back(node->val.String);
@@ -97,26 +93,21 @@ Expr deal_Index(TreeNode *node, Type type, std::vector<std::string>& indexList) 
         return Index::make(index_type, node->val.String, dom, IndexType::Reduce);
     }
 
-    //std::cout << "deal Index end!" << std::endl;
     return Index::make(index_type, node->val.String, dom, IndexType::Spatial);
 }
 
 // Const —— IntImm/FloatImm
 Expr deal_Const(TreeNode *node, Type type) {
-    //std::cout << "deal Const begin!" << std::endl;
 
     if (type == Type::int_scalar(32)) {
-        //std::cout << "deal Const end!" << std::endl;
         return IntImm::make(Type::int_scalar(32), node->val.Int);
     }
 
-    //std::cout << "deal Const end!" << std::endl;
     return FloatImm::make(Type::float_scalar(32), node->val.Int);
 }
 
 // Tref的args处理
 void deal_args(TreeNode *node, std::vector<Expr> &_args, std::vector<std::string> &_list) {
-    //std::cout << "deal args begin!" << std::endl;
     
     if (node == NULL) {
         return;
@@ -125,17 +116,14 @@ void deal_args(TreeNode *node, std::vector<Expr> &_args, std::vector<std::string
     if (node->type == Com) {
         deal_args(node->left, _args, _list);
         deal_args(node->right, _args, _list);
-        //std::cout << "deal args begin!" << std::endl;
         return;
     }
 
     _args.push_back(deal_expr(node, index_type, _list));
-    //std::cout << "deal args end!" << std::endl;
 }
 
 // Var —— Tref
 Expr deal_Tref(TreeNode *node, Type type, std::vector<std::string>& indexList) {
-    //std::cout << "deal Tref begin!" << std::endl;
 
     std::vector<size_t> sref_shape = {1};
     if (varTable[node->val.String] == sref_shape) {
@@ -146,12 +134,10 @@ Expr deal_Tref(TreeNode *node, Type type, std::vector<std::string>& indexList) {
     deal_args(node->right, argsList, indexList);
 
     // 建立返回结构
-    //std::cout << "deal Tref end!" << std::endl;
     return Var::make(data_type, node->val.String, argsList, varTable[node->val.String]);
 }
 
 Expr deal_expr(TreeNode *node, Type type, std::vector<std::string>& indexList) {
-    //std::cout << "deal Expr begin!" << std::endl;
 
     switch (node->type) {
         case Add:
@@ -173,7 +159,6 @@ Expr deal_expr(TreeNode *node, Type type, std::vector<std::string>& indexList) {
         default:
             break;
     }
-    //std::cout << "deal Expr end!" << std::endl;
     return deal_Index(node, type, indexList);
 }
 
@@ -183,7 +168,6 @@ Expr deal_expr(TreeNode *node, Type type, std::vector<std::string>& indexList) {
  * 需要用循环求和。返回类型为Stmt，返回值是处理该项的求值语句
  */
 Stmt deal_PosTerm(TreeNode *node, Expr tmp) {
-    //std::cout << "deal PosTerm begin!" << std::endl;
 
     // 获取表达式
     std::vector<std::string> indexList;
@@ -206,7 +190,6 @@ Stmt deal_PosTerm(TreeNode *node, Expr tmp) {
         mType = MoveType::MemToMem;
     
     if (loopindex.empty()) {
-    //std::cout << "deal PosTerm end!" << std::endl;
         return Move::make(tmp,
             Binary::make(data_type, BinaryOpType::Add, tmp, expr), 
             mType);
@@ -214,12 +197,10 @@ Stmt deal_PosTerm(TreeNode *node, Expr tmp) {
     Stmt move = Move::make(tmp,
         Binary::make(data_type, BinaryOpType::Add, tmp, expr), 
         mType);
-    //std::cout << "deal PosTerm end!" << std::endl;
     return LoopNest::make(loopindex, {move});
 }
 
 Stmt deal_NegTerm(TreeNode *node, Expr tmp) {
-    //std::cout << "deal NegTerm begin!" << std::endl;
     Stmt ret;
 
     // 获取表达式
@@ -243,7 +224,6 @@ Stmt deal_NegTerm(TreeNode *node, Expr tmp) {
         mType = MoveType::MemToMem;
     
     if (loopindex.empty()) {
-        //std::cout << "deal NegTerm end!" << std::endl;
         return Move::make(tmp,
             Binary::make(data_type, BinaryOpType::Sub, tmp, expr), 
             mType);
@@ -253,7 +233,6 @@ Stmt deal_NegTerm(TreeNode *node, Expr tmp) {
         Binary::make(data_type, BinaryOpType::Sub, tmp, expr), 
         mType);
 
-    //std::cout << "deal NegTerm end!" << std::endl;
     return LoopNest::make(loopindex, {move});;
 }
 
@@ -265,65 +244,54 @@ Stmt deal_NegTerm(TreeNode *node, Expr tmp) {
  */
 void deal_NegRHS(TreeNode * node, std::vector<Stmt> &stmtList, Expr tmp);
 void deal_PosRHS(TreeNode * node, std::vector<Stmt> &stmtList, Expr tmp) {
-    //std::cout << "deal PosRHS begin!" << std::endl;
     if (node->type == Add) {
         deal_PosRHS(node->left, stmtList, tmp);
         deal_PosRHS(node->right, stmtList, tmp);
-        //std::cout << "deal PosRHS end!" << std::endl;
         return;
     }
 
     if (node->type == Sub) {
         deal_PosRHS(node->left, stmtList, tmp);
         deal_NegRHS(node->right, stmtList, tmp);
-//std::cout << "deal PosRHS end!" << std::endl;
         return;
     }
 
     // 处理项
     stmtList.push_back(deal_PosTerm(node, tmp));
-//std::cout << "deal PosRHS end!" << std::endl;
     return;
 }
 
 void deal_NegRHS(TreeNode * node, std::vector<Stmt> &stmtList, Expr tmp) {
-    //std::cout << "deal NegRHS begin!" << std::endl;
     if (node->type == Add) {
         deal_NegRHS(node->left, stmtList, tmp);
         deal_PosRHS(node->right, stmtList, tmp);
-        //std::cout << "deal NegRHS end!" << std::endl;
         return;
     }
 
     if (node->type == Sub) {
         deal_NegRHS(node->left, stmtList, tmp);
         deal_NegRHS(node->right, stmtList, tmp);
-//std::cout << "deal NegRHS end!" << std::endl;
         return;
     }
 
     // 处理项
     stmtList.push_back(deal_NegTerm(node, tmp));
-//std::cout << "deal NegRHS end!" << std::endl;
     return;
 }
 
 void deal_Eq(TreeNode *node) {
-//std::cout << "deal Eq begin!" << std::endl;
     // 处理等式左侧
-//std::cout << "0 I'm here!" << std::endl;
     std::vector<std::string> indexList;
     Expr tref = deal_Tref(node->left, index_type, indexList);
-//std::cout << "1 I'm here!" << std::endl;
     leftindex = indexList;
-//std::cout << "2 I'm here!" << std::endl;
+
     // 主循环index，即等式左侧Tref的args
     std::vector<Expr> loopindex;
     for (std::string index : indexList) {
         Expr dom = Dom::make(index_type, indexDom[index].begin, indexDom[index].end);
         loopindex.push_back(Index::make(index_type, index, dom, IndexType::Spatial));
     }
-//std::cout << "4 I'm here!" << std::endl;
+
     // 处理等式右侧
     std::vector<Stmt> stmtList;
     // 临时变量tmp记录右侧结果，它的结构与左侧Tref相同，初始化
@@ -339,11 +307,9 @@ void deal_Eq(TreeNode *node) {
     deal_PosRHS(node->right, stmtList, tmp);
     mainStmt.push_back(LoopNest::make(loopindex, stmtList));
     mainStmt.push_back(LoopNest::make(loopindex, {Move::make(tref, tmp, MoveType::MemToMem)}));
-//std::cout << "deal Eq end!" << std::endl;
 }
 
 void parseTree(TreeNode *node) {
-//std::cout << "parse Tree begin!" << std::endl;
     if (node == NULL) {
         return;
     }
@@ -356,11 +322,9 @@ void parseTree(TreeNode *node) {
             parseTree(node->right);
             break;
     }
-//std::cout << "parse Tree end!" << std::endl;
 }
 
 void parseVar() {
-//std::cout << "parse Var begin!" << std::endl;
     for (auto var_name: caseInfo.ins) {
         inVars.push_back(Var::make(data_type, var_name, {}, varTable[var_name]));
     }
@@ -369,7 +333,6 @@ void parseVar() {
             outVars.push_back(Var::make(data_type, var_name, {}, varTable[var_name]));
         }
     }
-//std::cout << "parse Var begin!" << std::endl;
 }
 
 std::string buildTree(TreeNode *node, std::string filename) {
