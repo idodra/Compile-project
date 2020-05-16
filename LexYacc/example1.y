@@ -57,6 +57,7 @@ AList: IdExpr {$$ = $1;}
 ;
 IdExpr: T {$$ = $1;}
 | IdExpr ADD T {$$ = new_node(Add, $1, $3);}
+| IdExpr SUB T {$$ = new_node(Sub, $1, $3);}
 ;
 T: F {$$ = $1;}
 | T MUL F {$$ = new_node(Mul, $1, $3);}

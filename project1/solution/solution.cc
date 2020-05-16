@@ -426,7 +426,7 @@ void pass(std::string inFile, std::string outFile) {
     std::ofstream ofile(outFile, std::ios::out);
     ofile << "#include \"../run.h\"\n\n";
     ofile << code;
-    std::cout << code << std::endl;
+    //std::cout << code << std::endl;
     ofile.close();
 }
 
