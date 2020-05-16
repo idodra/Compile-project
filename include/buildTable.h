@@ -114,6 +114,9 @@ void parse_expr(TreeNode *node, int begin, int end) {
         case Mod:
             Index_Mod(node, begin, end);
             break;
+        case Par:
+            parse_expr(node->left, begin, end);
+            break;
         default:
             Index_Id(node, begin, end);
             break;
@@ -149,6 +152,9 @@ void insert_args(TreeNode *node) {
         case Index:
             Index_Id(node, 0, sizeQueue.front());
             sizeQueue.pop();
+            break;
+        case Par:
+            insert_args(node->left);
             break;
         default:
             insert_args(node->left);

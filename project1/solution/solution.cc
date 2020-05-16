@@ -365,7 +365,9 @@ void parseVar() {
         inVars.push_back(Var::make(data_type, var_name, {}, varTable[var_name]));
     }
     for (auto var_name: caseInfo.outs) {
-        outVars.push_back(Var::make(data_type, var_name, {}, varTable[var_name]));
+        if (!inVector(caseInfo.ins, var_name)) {
+            outVars.push_back(Var::make(data_type, var_name, {}, varTable[var_name]));
+        }
     }
 //std::cout << "parse Var begin!" << std::endl;
 }
