@@ -136,6 +136,12 @@ void deal_args(TreeNode *node, std::vector<Expr> &_args, std::vector<std::string
 // Var —— Tref
 Expr deal_Tref(TreeNode *node, Type type, std::vector<std::string>& indexList) {
     //std::cout << "deal Tref begin!" << std::endl;
+
+    std::vector<size_t> sref_shape = {1};
+    if (varTable[node->val.String] == sref_shape) {
+        return Var::make(data_type, node->val.String, {}, {1});
+    }
+
     argsList.clear();
     deal_args(node->right, argsList, indexList);
 
@@ -416,6 +422,7 @@ void pass(std::string inFile, std::string outFile) {
     free_tree(TreeRoot);
 
     std::ofstream ofile(outFile, std::ios::out);
+    ofile << "#include \"../run.h\"\n\n";
     ofile << code;
     std::cout << code << std::endl;
     ofile.close();
@@ -423,10 +430,14 @@ void pass(std::string inFile, std::string outFile) {
 
 int main() {
     pass("./cases/case1.json", "./kernels/kernel_case1.cc");
+    pass("./cases/case2.json", "./kernels/kernel_case2.cc");
+    pass("./cases/case3.json", "./kernels/kernel_case3.cc");
     pass("./cases/case4.json", "./kernels/kernel_case4.cc");
     pass("./cases/case5.json", "./kernels/kernel_case5.cc");
     pass("./cases/case6.json", "./kernels/kernel_case6.cc");
     pass("./cases/case7.json", "./kernels/kernel_case7.cc");
+    pass("./cases/case8.json", "./kernels/kernel_case8.cc");
+    pass("./cases/case9.json", "./kernels/kernel_case9.cc");
     pass("./cases/case10.json", "./kernels/kernel_case10.cc");
     pass("./cases/example.json", "./kernels/kernel_example.cc");
     
