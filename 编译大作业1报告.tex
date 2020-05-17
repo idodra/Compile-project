@@ -1,0 +1,74 @@
+\documentclass[a4paper,11pt]{ctexart}
+%中文论文
+\title{编译技术Project1报告}
+\author{刘皓华 ~黄凯 ~叶文沁 ~王胤博}
+\date{ }
+\usepackage{amsmath}
+\usepackage{CJK}
+\usepackage{amsthm}
+\usepackage{amssymb}%\geqslant
+\usepackage{graphicx}
+\usepackage{booktabs}%表格中画横线
+\usepackage{multirow}%表格行列合并
+\usepackage{caption}%表格标题
+\usepackage{listings}
+\usepackage{cases}
+\usepackage{enumerate}
+\usepackage{ctex}
+\begin{document}
+\maketitle
+\subsection*{1. 分工}
+叶文沁：solution.cc，buildTable.h。
+
+黄凯：词法分析和语法分析。
+
+刘皓华：代码生成。
+
+王胤博：整合形成报告。
+\subsection*{2. 思路与实现}
+\subsubsection*{整体思路}
+
+从json文件里提取kernel，为之建立DAG，然后生成符号表，建立IR树，生成代码。
+
+\subsubsection*{词法分析和语法分析}
+
+在进行词法分析之前，需要提取json文件中的kernel字段作为词法分析程序的输入。由于本次project的json文件格式固定且较为简单，没有使用第三方工具jsoncpp，而是自己编写了一个读取json文件的函数。该函数会读取json文件的各个字段，将其存储在预先定义好的结构体中，并去除kernel字段里多余的空格。读取完成后，将kernel字段存储在一个中间文件中，以该中间文件作为词法分析程序的输入。我们的词法分析程序借助词法分析工具Lex实现，语法分析程序借助语法分析工具Yacc实现。词法分析程序向语法分析程序提供token，语法分析程序在每次需要时调用词法分析程序来获取token。为了实现的方便，我们对RHS的文法进行了调整，将其改写成了$RHS\rightarrow RHS+Term|RHS-Term$的形式。借助词法分析程序和语法分析程序，为输入的kernel建立了一个DAG，供代码生成使用。
+
+\subsubsection*{solution.cc}
+
+在分析json文件和生成DAG后，首先遍历一遍DAG，生成符号表（代码在buildTable.h，其中的indexDom记录每个index的范围，vatTable记录每个数组的大小信息。通过遍历Tref或Sref节点的左子节点记录数组大小，将信息放入varTable。遍历Tref节点的右子节点，计算下标范围。将每个表达式范围作为继承属性传递给子表达式，并计算子表达式的范围，最后在进入index节点后更新indexDom中该index的范围），然后建立IR树（基本思路：每个等式对应有一个和LHS相同大小的临时变量，用于临时记录计算结果。每一个等式会产生一个临时变量声明语句、一个计算临时变量的循环语句、一个将临时变量赋给LHS的循环语句。每个等式的RHS分成若干Term处理，每个Term对应一条语句。如果这个Term有不在LHS的index，那么该语句就是一条用于求和的循环语句，否则是一条给临时变量赋值的语句）。
+
+\subsubsection*{代码生成}
+
+1. 新的IR节点类：向IR中添加了一种语句类型，用于变量的声明，命名为Def。Def类的实例里只包含一个Expr类实例，在创造一个Def实例时只需要一个包含了该声明语句的变量的所有信息的Var类的实例。
+
+附上Def的定义：
+\begin{lstlisting}[breaklines,language=c++]
+class Def: public StmtNode, public std::enable_shared_from_this<Def> {
+ public:
+    Expr var;
+    //std::vector<Expr> index_list;
+    //std::vector<Stmt> body_list;
+
+    Def(Expr _var) :
+        StmtNode(IRNodeType::Def), var(_var) {}
+
+    Stmt mutate_stmt(IRMutator *mutator) const;
+    void visit_node(IRVisitor *visitor) const;
+
+    static Stmt make(Expr _var) {
+        return std::make_shared<const Def>(_var);
+    }
+
+    static const IRNodeType node_type_ = IRNodeType::Def;
+};
+\end{lstlisting}
+
+2. IRPrinter：IRPrinter主要是深度优先遍历IR树，并在必要的节点进行打印。其中较为重要的细节包括：
+\begin{enumerate}[1)]
+\item 对于每一个运算，在打印时都用括号封装起来，保证c程序运行时不出错。
+\item 对于结构Var，在打印参数、打印声明语句与打印普通变量时，使用三种不同的处理，用在IRPrinter.h里定义的两个变量控制。
+\item 在Var的处理中，需要特别注意区分标量，用shape进行判断时，考虑是不是shape的大小为1且第一个的值也为1；用args判断时，只要判断args的大小即可。
+\item 在kernel里要注意一下没有输入参数的情况。
+\end{enumerate}
+\end{document}
