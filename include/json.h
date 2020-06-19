@@ -8,16 +8,12 @@ struct Json {
 	std::vector<std::string> outs;
 	std::string data_type;
 	std::string kernel;
+	std::vector<std::string> grad_to;
 };
 
 std::string get_val(const std::string &s, const bool &flag) {
 	char c;
 	int begin, end;
-	// string key;
-	// begin = s.find_first_of('\"')+1;
-	// end = s.find_first_of('\"', begin);
-	// key = s.substr(begin, end-begin);
-	// cout << key << endl;
 	c = flag ? '\"' : '[';
 	begin = s.find_first_of(c, s.find_first_of(':'))+1;
 	c = flag ? '\"' : ']';
@@ -65,5 +61,7 @@ void read_json(const std::string &filename, Json &json) {
 	json.data_type = get_val(s, true);
 	getline(ifile, s);
 	json.kernel = del_ws(get_val(s, true));
+	getline(ifile, s);
+	split_save(get_val(s, false), json.grad_to);
 	ifile.close();
 }
