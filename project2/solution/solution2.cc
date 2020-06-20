@@ -11,7 +11,7 @@
 #include "IRPrinter.h"
 #include "type.h"
 
-#include "lex_yacc.h"//include头文件以使用parser
+#include "grad.h"//include头文件以使用parser
 #include "buildTable.h"
 
 using namespace Boost::Internal;
@@ -23,7 +23,7 @@ Json caseInfo;                          // case信息
 Type index_type = Type::int_scalar(32);     
 Type data_type;
 std::vector<Stmt> mainStmt;             // 最外层Stmt
-std::set<String> rightVar;              // 右侧非grad变量 
+std::set<std::string> rightVar;              // 右侧非grad变量 
 std::vector<Expr> inVars;               // 输入变量
 std::vector<Expr> outVars;              // 输出变量
 std::vector<std::string> leftindex;     // 辅助, 记录等号左边出现的index
@@ -382,6 +382,10 @@ std::string buildTree(TreeNode *node, std::string filename) {
 void pass(std::string inFile, std::string outFile) {
     //调用parse_file()解析json文件
     parse_file(inFile);
+    for(int i = 0; i < caseInfo.grad_to.size(); ++i ){
+        change_tree(TreeRoot, caseInfo.grad_to.[i]);
+    }
+
     //记录index和它的取值范围, 张量的shape信息，构造符号表
     indexDom.clear();
     varTable.clear();
@@ -391,7 +395,7 @@ void pass(std::string inFile, std::string outFile) {
     //不需要使用树之后调用free_tree()删除树
     //原因:1.建树过程调用了malloc,需要free防止内存泄漏
     //    2.避免后续解析其他json文件出错
-    free_tree(TreeRoot);
+    free_all();
 
     std::ofstream ofile(outFile, std::ios::out);
     ofile << "#include \"../run.h\"\n\n";
