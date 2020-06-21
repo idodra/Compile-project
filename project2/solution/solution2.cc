@@ -303,12 +303,12 @@ void deal_Eq(TreeNode *node) {
     // 临时变量tmp记录右侧结果，它的结构与左侧Tref相同，初始化
     Expr tmp = Var::make(data_type, getTemp(), argsList, varTable[node->left->val.String]);
     mainStmt.push_back(Def::make(tmp));
-    if (data_type == Type::int_scalar(32)) {
-        stmtList.push_back(Move::make(tmp, IntImm::make(data_type, 0), MoveType::LocalToMem));
-    }
-    else {
-        stmtList.push_back(Move::make(tmp, FloatImm::make(data_type, 0), MoveType::LocalToMem));
-    }
+    //if (data_type == Type::int_scalar(32)) {
+        //stmtList.push_back(Move::make(tmp, IntImm::make(data_type, 0), MoveType::LocalToMem));
+    //}
+    //else {
+        //stmtList.push_back(Move::make(tmp, FloatImm::make(data_type, 0), MoveType::LocalToMem));
+    //}
 
     deal_PosRHS(node->right, stmtList, tmp);
     mainStmt.push_back(LoopNest::make(loopindex, stmtList));
