@@ -342,20 +342,10 @@ void parseVar() {
     }
 }
 
-std::string buildTree(TreeNode *node, std::string filename) {
-    //调用read_json解析json文件, 记录case信息
-    caseInfo.ins.clear();
-    caseInfo.outs.clear();
-    read_json(filename, caseInfo);
-    if (strcmp(caseInfo.data_type.c_str(), "float") == 0) {
-        data_type = Type::float_scalar(32);
-    } 
-    else {
-        data_type = Type::int_scalar(32);
-    }
-
+std::string buildTree(TreeNode *node) {
     //初始化
     tmpNum = 0;
+    rightVar.clear();
     inVars.clear();
     outVars.clear();
     mainStmt.clear();
@@ -363,7 +353,7 @@ std::string buildTree(TreeNode *node, std::string filename) {
     parseTree(node);
     //给出ins/outs的变量结构
     parseVar();
-    // kernel
+    // grad
     Group kernel = Kernel::make(caseInfo.name, inVars, outVars, mainStmt, KernelType::CPU);
     // visitor
     IRVisitor visitor;
@@ -380,19 +370,48 @@ std::string buildTree(TreeNode *node, std::string filename) {
 }
 
 void pass(std::string inFile, std::string outFile) {
-    //调用parse_file()解析json文件
+    // 调用parse_file()解析json文件
     parse_file(inFile);
-    for(int i = 0; i < caseInfo.grad_to.size(); ++i ){
-        change_tree(TreeRoot, caseInfo.grad_to.[i]);
+
+    //调用read_json解析json文件, 记录case信息
+    caseInfo.ins.clear();
+    caseInfo.outs.clear();
+    caseInfo.grad_to.clear();
+    read_json(inFile, caseInfo);
+    if (strcmp(caseInfo.data_type.c_str(), "float") == 0) {
+        data_type = Type::float_scalar(32);
+    } 
+    else {
+        data_type = Type::int_scalar(32);
     }
+    // 将前向表达式翻译成后向
+    if (caseInfo.grad_to.size() == 1) {
+        TreeNode* root = change_tree(TreeRoot, caseInfo.grad_to[0]);
+        TreeRoot = root;
+    }
+    else {
+        int num = caseInfo.grad_to.size();
+        TreeNode* left = change_tree(TreeRoot, caseInfo.grad_to[num - 2]);
+        TreeNode* right = change_tree(TreeRoot, caseInfo.grad_to[num - 1]);
+        TreeNode* root = new_node(Com, left, right);
+        for(int i = num - 3; i > 0; --i) {
+            TreeNode* right = root;
+            TreeNode* left = change_tree(TreeRoot, caseInfo.grad_to[i]);
+            root = new_node(Com, left, right);
+        }
+        TreeRoot = root;
+    }
+
+    pnode(TreeRoot);
+    std::cout << endl;
 
     //记录index和它的取值范围, 张量的shape信息，构造符号表
     indexDom.clear();
     varTable.clear();
     buildTable(TreeRoot);
     //遍历, 构造IR树
-    std::string code = buildTree(TreeRoot, inFile);
-    //不需要使用树之后调用free_tree()删除树
+    std::string code = buildTree(TreeRoot);
+    //不需要使用树之后调用free_all()删除树
     //原因:1.建树过程调用了malloc,需要free防止内存泄漏
     //    2.避免后续解析其他json文件出错
     free_all();
@@ -405,17 +424,17 @@ void pass(std::string inFile, std::string outFile) {
 }
 
 int main() {
-    pass("./cases/case1.json", "./kernels/kernel_case1.cc");
-    pass("./cases/case2.json", "./kernels/kernel_case2.cc");
-    pass("./cases/case3.json", "./kernels/kernel_case3.cc");
-    pass("./cases/case4.json", "./kernels/kernel_case4.cc");
-    pass("./cases/case5.json", "./kernels/kernel_case5.cc");
-    pass("./cases/case6.json", "./kernels/kernel_case6.cc");
-    pass("./cases/case7.json", "./kernels/kernel_case7.cc");
-    pass("./cases/case8.json", "./kernels/kernel_case8.cc");
-    pass("./cases/case9.json", "./kernels/kernel_case9.cc");
-    pass("./cases/case10.json", "./kernels/kernel_case10.cc");
-    pass("./cases/example.json", "./kernels/kernel_example.cc");
+    pass("./cases/case1.json", "./kernels/grad_case1.cc");
+    pass("./cases/case2.json", "./kernels/grad_case2.cc");
+    pass("./cases/case3.json", "./kernels/grad_case3.cc");
+    pass("./cases/case4.json", "./kernels/grad_case4.cc");
+    pass("./cases/case5.json", "./kernels/grad_case5.cc");
+    pass("./cases/case6.json", "./kernels/grad_case6.cc");
+    pass("./cases/case7.json", "./kernels/grad_case7.cc");
+    pass("./cases/case8.json", "./kernels/grad_case8.cc");
+    pass("./cases/case9.json", "./kernels/grad_case9.cc");
+    pass("./cases/case10.json", "./kernels/grad_case10.cc");
+    //pass("./cases/example.json", "./kernels/grad_example.cc");
     
     return 0;
 }
