@@ -196,6 +196,14 @@ void IRPrinter::visit(Ref<const Var> op) {
             }
             oss << "]";
         }
+        oss << " = ";
+        for (size_t i = 0; i < op->shape.size(); ++i) {
+                oss << "{";
+        }
+        oss << " 0 ";
+        for (size_t i = 0; i < op->shape.size(); ++i) {
+                oss << "}";
+        }
     }
     else {
         oss << op->name;
