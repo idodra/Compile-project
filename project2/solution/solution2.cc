@@ -301,7 +301,7 @@ void deal_Eq(TreeNode *node) {
     // 处理等式右侧
     std::vector<Stmt> stmtList;
     // 临时变量tmp记录右侧结果，它的结构与左侧Tref相同，初始化
-    Expr tmp = Var::make(data_type, getTemp(), loopindex, varTable[node->left->val.String]);
+    Expr tmp = Var::make(data_type, getTemp(), argsList, varTable[node->left->val.String]);
     mainStmt.push_back(Def::make(tmp));
     if (data_type == Type::int_scalar(32)) {
         stmtList.push_back(Move::make(tmp, IntImm::make(data_type, 0), MoveType::LocalToMem));
@@ -417,7 +417,7 @@ void pass(std::string inFile, std::string outFile) {
     free_all();
 
     std::ofstream ofile(outFile, std::ios::out);
-    ofile << "#include \"../run.h\"\n\n";
+    ofile << "#include \"../run2.h\"\n\n";
     ofile << code;
     //std::cout << code << std::endl;
     ofile.close();
