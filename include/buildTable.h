@@ -2,8 +2,8 @@
  * 建立符号表，确定index范围
  */
 
-const int MAX_INT = 0x7fffffff;
-const int MIN_INT = 0x80000000;
+const int mod_begin = 0x80000000;
+const int mod_end = 0x7fffffff;
 
 // 记录index的取值范围
 struct index_info {
@@ -21,8 +21,8 @@ void parse_expr(TreeNode *node, int begin, int end);
 void Index_Add(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
         int i = node->right->val.Int;
-        int _begin = (begin == MAX_INT) ? begin : begin - i;
-        int _end = (end == MIN_INT) ? end : end - i;
+        int _begin = (begin == mod_begin) ? begin : begin - i;
+        int _end = (end == mod_end) ? end : end - i;
         parse_expr(node->left, _begin, _end);
         return;
     }
@@ -34,8 +34,8 @@ void Index_Add(TreeNode *node, int begin, int end) {
 void Index_Sub(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
         int i = node->right->val.Int;
-        int _begin = (begin == MAX_INT) ? begin : begin + i;
-        int _end = (end == MIN_INT) ? end : end + i;
+        int _begin = (begin == mod_begin) ? begin : begin + i;
+        int _end = (end == mod_end) ? end : end + i;
         parse_expr(node->left, _begin, _end);
         return;
     }
@@ -47,8 +47,8 @@ void Index_Sub(TreeNode *node, int begin, int end) {
 void Index_Mul(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
         int i = node->right->val.Int;
-        int _begin = (begin == MAX_INT) ? begin : begin / i;
-        int _end = (end == MIN_INT) ? end : end / i;
+        int _begin = (begin == mod_begin) ? begin : begin / i;
+        int _end = (end == mod_end) ? end : end / i;
         parse_expr(node->left, _begin, _end);
         return;
     }
@@ -60,8 +60,8 @@ void Index_Mul(TreeNode *node, int begin, int end) {
 void Index_Div(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
         int i = node->right->val.Int;
-        int _begin = (begin == MAX_INT) ? begin : begin * i;
-        int _end = (end == MIN_INT) ? end : end * i;
+        int _begin = (begin == mod_begin) ? begin : begin * i;
+        int _end = (end == mod_end) ? end : end * i;
         parse_expr(node->left, _begin, _end);
         return;
     }
@@ -72,10 +72,10 @@ void Index_Div(TreeNode *node, int begin, int end) {
 // idExpr —— Mod
 void Index_Mod(TreeNode *node, int begin, int end) {
     if (node->right->type == Intv) {
-        parse_expr(node->left, MAX_INT, MIN_INT);
+        parse_expr(node->left, mod_begin, mod_end);
         return;
     }
-    parse_expr(node->left, MAX_INT, MIN_INT);
+    parse_expr(node->left, mod_begin, mod_end);
     parse_expr(node->right, 1, end > 1 ? end : 1);
 }
 
