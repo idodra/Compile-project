@@ -1,4 +1,4 @@
-#include "../run.h"
+#include "../run2.h"
 
 void grad_case10(float (&dA)[8][8], float (&dB)[10][8]) {
   float tmp0[10][8];
